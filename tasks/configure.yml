@@ -1,0 +1,78 @@
+---
+- name: Install Reveal-web Javascript requirements
+  shell: yarn install
+  args:
+    chdir: "{{ express_checkout_path }}"
+  become: True
+  become_user: "{{ express_system_user }}"
+
+- name: Copy environment variables file
+  template:
+    src: env.j2
+    dest: "{{ express_app_path }}/.env"
+    mode: 0644
+    owner: "{{ express_system_user }}"
+    group: "{{ express_system_group }}"
+
+- name: Install Javascript requirements
+  shell: yarn install
+  args:
+    chdir: "{{ express_app_path }}"
+  become: True
+  become_user: "{{ express_system_user }}"
+
+- name: Compile Javascript
+  shell: yarn build
+  args:
+    chdir: "{{ express_app_path }}"
+  become: True
+  become_user: "{{ express_system_user }}"
+
+# creates a sym-link express_codebase_path; that points to the express checkout path
+- name: Make the new codebase current
+  file:
+    src: "{{ express_checkout_path }}"
+    dest: "{{ express_codebase_path }}"
+    state: link
+    force: yes
+    owner: "{{ express_system_user }}"
+    group: "{{ express_system_group }}"
+
+- name: Delete express service pm2 process
+  become: true
+  become_user: "{{ express_system_user }}"
+  command: "{{ express_pm2_path }} delete {{express_service_name}}"
+  ignore_errors: yes
+  notify:
+    - restart_express_service
+
+- name: Start express pm2 app
+  become: true
+  become_user: "{{ express_system_user }}"
+  command: "{{express_pm2_path}} start dist"
+  args:
+    chdir: "{{ express_app_path }}"
+  notify:
+    - restart_express_service
+
+- name: save the current PM2 running list
+  become: true
+  become_user: "{{ express_system_user }}"
+  command: "{{ express_pm2_path }} save"
+  notify:
+    - restart_express_service
+
+- name: delete the old startup file
+  become: true
+  become_user: "root"
+  command: "{{ express_pm2_path }} unstartup  -u {{ express_system_user }} --service-name {{ express_service_name }}"
+  ignore_errors: yes
+  notify:
+    - restart_express_service
+
+- name: Generate an express PM2 init service file
+  become: true
+  become_user: "root"
+  command: "{{express_pm2_path}} startup  -u {{ express_system_user }} --hp {{ express_app_path }} --service-name {{ express_service_name }}"
+  notify:
+    - restart_express_service

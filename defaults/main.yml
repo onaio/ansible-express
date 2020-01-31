@@ -1,0 +1,35 @@
+---
+# defaults file for ansible-express
+# user
+express_system_user: "express"
+express_system_group: "www-data"
+express_system_user_home: "/home/{{ express_system_user }}"
+
+# git
+express_git_url:
+express_git_version: "master"
+express_git_key:
+express_git_key_filename: "id_ed25519"
+express_remove_git_key: True
+
+# system-wide dependencies
+express_system_wide_dependencies:
+  - git
+  - nodejs
+  - yarn
+express_node_version: 10.x
+
+# app
+express_env_name: "prod"
+express_app_name: "{{ express_system_user }}"
+express_codebase_path: "{{ express_system_user_home }}/app"
+express_versioned_path: "{{ express_codebase_path }}-versioned"
+express_checkout_path: "{{ express_versioned_path }}/{{ ansible_date_time['epoch'] }}"
+express_app_path: "{{ express_checkout_path }}/server"
+express_log_path: "/var/log/{{ express_app_name }}"
+express_service_name: "express-service"
+express_pm2_path: "/usr/bin/pm2"
+
+# app settings
+express_app_settings:
+  NODE_ENV: "production"

@@ -1,0 +1,7 @@
+---
+- name: restart_express_service
+  systemd:
+    name: "{{ express_service_name }}"
+    state: reloaded
+    daemon_reload: true
+    enabled: true

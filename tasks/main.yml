@@ -1,0 +1,15 @@
+---
+- name: Install express app
+  include_tasks: install.yml
+  tags:
+    - install
+
+- name: Configure express app
+  include_tasks: configure.yml
+  tags:
+    - configure
+
+- name: Cleanup
+  include_tasks: cleanup.yml
+  tags:
+    - cleanup
