@@ -61,7 +61,7 @@
 
 - name: delete the old startup file
   become: true
-  become_user: "{{ express_system_user }}"
+  become_user: "root"
   command: "{{ express_pm2_path }} unstartup  -u {{ express_system_user }} --service-name {{ express_service_name }} --hp {{ express_system_user_home }}"
   ignore_errors: yes
   notify:
@@ -69,7 +69,7 @@
 
 - name: Generate an express PM2 init service file
   become: true
-  become_user: "{{ express_system_user }}"
+  become_user: "root"
   command: "{{ express_pm2_path }} startup  -u {{ express_system_user }} --hp {{ express_system_user_home }} --service-name {{ express_service_name }}"
   notify:
     - start_express_service
