@@ -1,7 +1,8 @@
 ---
 - name: Get previous app deploy listing
-  shell: ls -tr1 chdir={{ express_versioned_path }}
+  command: ls -tr1 chdir={{ express_versioned_path }}
   register: versioned_list
+  changed_when: false
 
 - name: Remove extra files from app directory
   file:

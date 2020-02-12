@@ -7,6 +7,20 @@
     append: yes
     create_home: yes
 
+- name: Detect if Node is installed
+  command: node --version
+  register: node_version
+  changed_when: false
+  ignore_errors: True
+
+- name: Download node
+  shell: curl -sL https://deb.nodesource.com/setup_{{ express_node_version }} | sudo -E bash -
+  become: True
+  become_user: root
+  args:
+    warn: no
+  when: node_version.rc != 0
+
 - name: Add yarn apt key to keyring
   apt_key:
     url: https://dl.yarnpkg.com/debian/pubkey.gpg
@@ -22,12 +36,6 @@
   become: true
   become_user: root
 
-- name: Download node
-  shell: curl -sL https://deb.nodesource.com/setup_{{ express_node_version }} | sudo -E bash -
-  become: True
-  become_user: root
-  args:
-    warn: no
 
 - name: Update apt cache
   apt:
@@ -47,7 +55,7 @@
   become: True
   become_user: root
 
-- name: Install PM2
+- name: Install PM2 
   npm:
     name: pm2
     global: yes
@@ -68,6 +76,7 @@
     - "{{ express_versioned_path }}"
     - "{{ express_checkout_path }}"
     - "{{ express_system_user_home }}/.ssh"
+  changed_when: false
 
 - name: Git clone without key
   git:

@@ -13,20 +13,23 @@
     mode: 0644
     owner: "{{ express_system_user }}"
     group: "{{ express_system_group }}"
+  changed_when: false
 
 - name: Install Javascript requirements
-  shell: yarn install
-  args:
-    chdir: "{{ express_app_path }}"
+  yarn:
+    state: present
+    path: "{{ express_app_path }}"
+  changed_when: false
   become: True
   become_user: "{{ express_system_user }}"
 
 - name: Compile Javascript
-  shell: yarn build
-  args:
+  command:
+    cmd: yarn build
     chdir: "{{ express_app_path }}"
   become: True
   become_user: "{{ express_system_user }}"
+  changed_when: false
 
 # creates a sym-link express_codebase_path; that points to the express checkout path
 - name: Make the new codebase current
@@ -37,14 +40,34 @@
     force: yes
     owner: "{{ express_system_user }}"
     group: "{{ express_system_group }}"
+  changed_when: false
+
+- name: Restart express pm2 process
+  become: true
+  become_user: "{{ express_system_user }}"
+  command: "{{ express_pm2_path }} restart {{ express_service_name }}"
+  args:
+    chdir: "{{ express_app_path }}"
+  register: pm2_process
+  ignore_errors: yes
+
+- name: set express_service_exists fact
+  set_fact:
+    express_service_not_exists: "{{pm2_process.rc != 0}}"
+
+- name: set express_service_exists fact
+  set_fact:
+    express_service_exists: "{{not express_service_not_exists}}"
 
 - name: Delete express pm2 process
   become: true
   become_user: "{{ express_system_user }}"
   command: "{{ express_pm2_path }} delete all"
-  ignore_errors: yes
   notify:
     - start_express_service
+  when: express_service_not_exists
+  ignore_errors: yes
+
 
 - name: Start express pm2 app
   become: true
@@ -52,11 +75,13 @@
   command: "{{ express_pm2_path }} start dist/index.js --name {{ express_service_name }}"
   args:
     chdir: "{{ express_app_path }}"
+  when: express_service_not_exists
 
 - name: save the current PM2 running list
   become: true
   become_user: "{{ express_system_user }}"
   command: "{{ express_pm2_path }} save"
+  when: express_service_not_exists
 
 
 - name: delete the old startup file
@@ -66,6 +91,7 @@
   ignore_errors: yes
   notify:
     - start_express_service
+  when: express_service_not_exists
 
 - name: Generate an express PM2 init service file
   become: true
@@ -73,3 +99,4 @@
   command: "{{ express_pm2_path }} startup  -u {{ express_system_user }} --hp {{ express_system_user_home }} --service-name {{ express_service_name }}"
   notify:
     - start_express_service
+  when: express_service_not_exists
