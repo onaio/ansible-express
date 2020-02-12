@@ -7,16 +7,19 @@
     append: yes
     create_home: yes
 
-- name: Add yarn apt key
-  shell: curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-  become: True
-  become_user: root
-  args:
-    warn: no
+- name: Add yarn apt key to keyring
+  apt_key:
+    url: https://dl.yarnpkg.com/debian/pubkey.gpg
+    state: present
 
 - name: Add yarn to sources
-  shell: echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-  become: True
+  lineinfile:
+    create: yes
+    line: "deb https://dl.yarnpkg.com/debian/ stable main"
+    path: /etc/apt/sources.list.d/yarn.list
+    regexp: "deb https://dl.yarnpkg.com/debian/ stable main"
+    state: present
+  become: true
   become_user: root
 
 - name: Download node
