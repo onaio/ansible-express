@@ -14,11 +14,12 @@
   ignore_errors: True
 
 - name: Download node
-  shell: curl -sL https://deb.nodesource.com/setup_{{ express_node_version }} | sudo -E bash -
+  shell: set -o pipefail && curl -sL https://deb.nodesource.com/setup_{{ express_node_version }} | sudo -E bash -
   become: True
   become_user: root
   args:
     warn: no
+    executable: /bin/bash
   when: node_version.rc != 0
 
 - name: Add yarn apt key to keyring
@@ -48,14 +49,7 @@
     update_cache: yes
     cache_valid_time: 600
 
-- name: Install typescript
-  npm:
-    name: typescript@latest
-    global: yes
-  become: True
-  become_user: root
-
-- name: Install PM2 
+- name: Install PM2
   npm:
     name: pm2
     global: yes
@@ -124,4 +118,4 @@
   when:
     - express_git_key is defined
     - express_git_key is not none
-    - express_remove_git_key == True
+    - express_remove_git_key
