@@ -45,7 +45,7 @@
 - name: Install system-wide dependencies
   apt:
     name: "{{ express_system_wide_dependencies }}"
-    state: latest
+    state: present
     update_cache: yes
     cache_valid_time: 600
 
