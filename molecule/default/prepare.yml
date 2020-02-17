@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: yes
+  become_user: root
+  tasks:
+  - name: Install curl
+    apt:
+      name: curl
+      update_cache: yes
+      state: present
