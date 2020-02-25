@@ -9,7 +9,7 @@
   changed_when: false
 
 - name: Install Javascript requirements
-  become: True
+  become: true
   become_user: "{{ express_system_user }}"
   yarn:
     state: present
@@ -21,7 +21,7 @@
   command:
     cmd: yarn build
     chdir: "{{ express_app_path }}"
-  become: True
+  become: true
   become_user: "{{ express_system_user }}"
   changed_when: false
 
@@ -31,7 +31,7 @@
     src: "{{ express_checkout_path }}"
     dest: "{{ express_codebase_path }}"
     state: link
-    force: yes
+    force: true
     owner: "{{ express_system_user }}"
     group: "{{ express_system_group }}"
   changed_when: false
@@ -43,7 +43,7 @@
   args:
     chdir: "{{ express_app_path }}"
   register: pm2_process
-  ignore_errors: yes
+  ignore_errors: true
   changed_when: false
 
 - name: set express_service_exists fact
@@ -56,40 +56,48 @@
 
 - name: creating pm2 process
   block:
-  - name: Delete express pm2 process
-    become: true
-    become_user: "{{ express_system_user }}"
-    command: "{{ express_pm2_path }} delete all"
-    notify:
-      - start_express_service
-    ignore_errors: yes
+    - name: Delete express pm2 process
+      become: true
+      become_user: "{{ express_system_user }}"
+      command: "{{ express_pm2_path }} delete all"
+      notify:
+        - start_express_service
+      ignore_errors: true
 
 
-  - name: Start express pm2 app
-    become: true
-    become_user: "{{ express_system_user }}"
-    command: "{{ express_pm2_path }} start dist/index.js --name {{ express_service_name }}"
-    args:
-      chdir: "{{ express_app_path }}"
+    - name: Start express pm2 app
+      become: true
+      become_user: "{{ express_system_user }}"
+      command: >
+        {{ express_pm2_path }} start dist/index.js
+        --name {{ express_service_name }}
+      args:
+        chdir: "{{ express_app_path }}"
 
-  - name: save the current PM2 running list
-    become: true
-    become_user: "{{ express_system_user }}"
-    command: "{{ express_pm2_path }} save"
+    - name: save the current PM2 running list
+      become: true
+      become_user: "{{ express_system_user }}"
+      command: "{{ express_pm2_path }} save"
 
 
-  - name: delete the old startup file
-    become: true
-    become_user: "root"
-    command: "{{ express_pm2_path }} unstartup  -u {{ express_system_user }} --service-name {{ express_service_name }} --hp {{ express_system_user_home }}"
-    ignore_errors: yes
-    notify:
-      - start_express_service
+    - name: delete the old startup file
+      become: true
+      become_user: "root"
+      command: >
+        {{ express_pm2_path }} unstartup
+        -u {{ express_system_user }}
+        --service-name {{ express_service_name }}
+        --hp {{ express_system_user_home }}
+      ignore_errors: true
+      notify:
+        - start_express_service
 
-  - name: Generate an express PM2 init service file
-    become: true
-    become_user: "root"
-    command: "{{ express_pm2_path }} startup  -u {{ express_system_user }} --hp {{ express_system_user_home }} --service-name {{ express_service_name }}"
-    notify:
-      - start_express_service
+    - name: Generate an express PM2 init service file
+      become: true
+      become_user: "root"
+      command: "{{ express_pm2_path }} startup  -u {{ express_system_user }}
+       --hp {{ express_system_user_home }}
+        --service-name {{ express_service_name }}"
+      notify:
+        - start_express_service
   when: express_service_not_exists

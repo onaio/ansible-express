@@ -10,7 +10,7 @@ express_git_url:
 express_git_version: "master"
 express_git_key:
 express_git_key_filename: "id_ed25519"
-express_remove_git_key: True
+express_remove_git_key: true
 
 # system-wide dependencies
 express_system_wide_dependencies:

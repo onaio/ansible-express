@@ -7,6 +7,6 @@ galaxy_info:
 
   min_ansible_version: 2.9
   platforms:
-  - name: ubuntu
-    versions:
-      - all
+    - name: ubuntu
+      versions:
+        - all

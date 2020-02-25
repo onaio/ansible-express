@@ -4,21 +4,24 @@
     name: "{{ express_system_user }}"
     shell: /bin/bash
     group: "{{ express_system_group }}"
-    append: yes
-    create_home: yes
+    append: true
+    create_home: true
 
 - name: Detect if Node is installed
   command: node --version
   register: node_version
   changed_when: false
-  ignore_errors: True
+  ignore_errors: true
 
 - name: Download node
-  shell: set -o pipefail && curl -sL https://deb.nodesource.com/setup_{{ express_node_version }} | sudo -E bash -
-  become: True
+  shell: >
+    set -o pipefail &&
+    curl -sL https://deb.nodesource.com/setup_{{ express_node_version }}
+    | sudo -E bash -
+  become: true
   become_user: root
   args:
-    warn: no
+    warn: false
     executable: /bin/bash
   when: node_version.rc != 0
 
@@ -29,7 +32,7 @@
 
 - name: Add yarn to sources
   lineinfile:
-    create: yes
+    create: true
     line: "deb https://dl.yarnpkg.com/debian/ stable main"
     path: /etc/apt/sources.list.d/yarn.list
     regexp: "deb https://dl.yarnpkg.com/debian/ stable main"
@@ -40,20 +43,20 @@
 
 - name: Update apt cache
   apt:
-    update_cache: "yes"
+    update_cache: "true"
 
 - name: Install system-wide dependencies
   apt:
     name: "{{ express_system_wide_dependencies }}"
     state: present
-    update_cache: yes
+    update_cache: true
     cache_valid_time: 600
 
 - name: Install PM2
   npm:
     name: pm2
-    global: yes
-  become: True
+    global: true
+  become: true
   become_user: root
 
 
@@ -74,12 +77,12 @@
 
 - name: Git clone without key
   git:
-    accept_hostkey: "yes"
+    accept_hostkey: "true"
     repo: "{{ express_git_url }}"
     dest: "{{ express_checkout_path }}"
     version: "{{ express_git_version }}"
     depth: 1
-  become: True
+  become: true
   become_user: "{{ express_system_user }}"
   when:
     - express_git_key is not defined or express_git_key is none
@@ -90,20 +93,20 @@
     dest: "{{ express_system_user_home }}/.ssh/{{ express_git_key_filename }}"
     owner: "{{ express_system_user }}"
     mode: 0600
-  no_log: False
+  no_log: false
   when:
     - express_git_key is defined
     - express_git_key is not none
 
 - name: Git clone with key
   git:
-    accept_hostkey: "yes"
+    accept_hostkey: "true"
     repo: "{{ express_git_url }}"
     dest: "{{ express_checkout_path }}"
     version: "{{ express_git_version }}"
     depth: 1
     key_file: "{{ express_system_user_home }}/.ssh/{{ express_git_key_filename }}"
-  become: True
+  become: true
   become_user: "{{ express_system_user }}"
   when:
     - express_git_key is defined
@@ -113,7 +116,7 @@
   file:
     state: absent
     path: "{{ express_system_user_home }}/.ssh/{{ express_git_key_filename }}"
-  become: True
+  become: true
   become_user: "{{ express_system_user }}"
   when:
     - express_git_key is defined
