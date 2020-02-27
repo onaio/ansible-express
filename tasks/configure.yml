@@ -78,26 +78,25 @@
       become: true
       become_user: "{{ express_system_user }}"
       command: "{{ express_pm2_path }} save"
-
-
-    - name: delete the old startup file
-      become: true
-      become_user: "root"
-      command: >
-        {{ express_pm2_path }} unstartup
-        -u {{ express_system_user }}
-        --service-name {{ express_service_name }}
-        --hp {{ express_system_user_home }}
-      ignore_errors: true
-      notify:
-        - start_express_service
-
-    - name: Generate an express PM2 init service file
-      become: true
-      become_user: "root"
-      command: "{{ express_pm2_path }} startup  -u {{ express_system_user }}
-       --hp {{ express_system_user_home }}
-        --service-name {{ express_service_name }}"
-      notify:
-        - start_express_service
   when: express_service_not_exists
+
+- name: delete the old startup file
+  become: true
+  become_user: "root"
+  command: >
+    {{ express_pm2_path }} unstartup
+    -u {{ express_system_user }}
+    --service-name {{ express_service_name }}
+    --hp {{ express_system_user_home }}
+  ignore_errors: true
+  changed_when: false
+
+- name: Generate an express PM2 init service file
+  become: true
+  become_user: "root"
+  command: "{{ express_pm2_path }} startup  -u {{ express_system_user }}
+    --hp {{ express_system_user_home }}
+    --service-name {{ express_service_name }}"
+  notify:
+    - start_express_service
+  changed_when: false

@@ -86,6 +86,7 @@
   become_user: "{{ express_system_user }}"
   when:
     - express_git_key is not defined or express_git_key is none
+  changed_when: false
 
 - name: Copy git key
   copy:
