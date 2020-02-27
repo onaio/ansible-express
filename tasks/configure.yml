@@ -15,7 +15,8 @@
     state: present
     path: "{{ item }}"
   with_items: "{{ express_package_json_paths }}"
-  changed_when: false
+  tags:
+    - molecule-idempotence-notest
 
 - name: Compile Javascript
   command:
@@ -34,7 +35,8 @@
     force: true
     owner: "{{ express_system_user }}"
     group: "{{ express_system_group }}"
-  changed_when: false
+  tags:
+    - molecule-idempotence-notest
 
 - name: Restart express pm2 process
   become: true
@@ -79,6 +81,8 @@
       become_user: "{{ express_system_user }}"
       command: "{{ express_pm2_path }} save"
   when: express_service_not_exists
+  notify:
+    - start_express_service
 
 - name: delete the old startup file
   become: true
@@ -89,7 +93,10 @@
     --service-name {{ express_service_name }}
     --hp {{ express_system_user_home }}
   ignore_errors: true
-  changed_when: false
+  notify:
+    - start_express_service
+  tags:
+    - molecule-idempotence-notest
 
 - name: Generate an express PM2 init service file
   become: true
@@ -99,4 +106,5 @@
     --service-name {{ express_service_name }}"
   notify:
     - start_express_service
-  changed_when: false
+  tags:
+    - molecule-idempotence-notest

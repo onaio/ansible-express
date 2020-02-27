@@ -64,8 +64,8 @@ def test_installs_js_requirements(host):
 def test_express_is_running(host):
     get_local_host = host.run("curl http://localhost:3000")
     assert (
-        (""""message":"ENOENT: no such file or directory,
-         stat '/home/express/app-versioned/""")
+        (""""message":"ENOENT: no such file or directory,""" +
+         """ stat '/home/express/app-versioned/""")
         in get_local_host.stdout
     )
 

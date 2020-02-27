@@ -4,6 +4,6 @@
   become_user: root
   systemd:
     name: "{{ express_service_name }}"
-    state: restarted
+    state: started
     daemon_reload: true
     enabled: true
