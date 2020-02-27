@@ -96,7 +96,7 @@
   notify:
     - start_express_service
   tags:
-    - molecule-idempotence-notest
+    - molecule-idempotence-notest  # noqa 301
 
 - name: Generate an express PM2 init service file
   become: true
@@ -109,4 +109,4 @@
   notify:
     - start_express_service
   tags:
-    - molecule-idempotence-notest
+    - molecule-idempotence-notest  # noqa 301
