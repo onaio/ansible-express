@@ -24,7 +24,8 @@
     chdir: "{{ express_app_path }}"
   become: true
   become_user: "{{ express_system_user }}"
-  changed_when: false
+  tags:
+    - molecule-idempotence-notest
 
 # creates a sym-link express_codebase_path; that points to the express checkout path
 - name: Make the new codebase current
