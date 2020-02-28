@@ -6,7 +6,9 @@
     mode: 0644
     owner: "{{ express_system_user }}"
     group: "{{ express_system_group }}"
-  changed_when: false
+  tags:
+    - molecule-idempotence-notest
+  changed_when: false  # noqa [301]
 
 - name: Install Javascript requirements
   become: true
