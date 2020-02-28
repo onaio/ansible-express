@@ -8,7 +8,7 @@
     group: "{{ express_system_group }}"
   tags:
     - molecule-idempotence-notest
-  changed_when: false  # noqa [301]
+  changed_when: false  # noqa 301
 
 - name: Install Javascript requirements
   become: true
@@ -27,7 +27,7 @@
   become: true
   become_user: "{{ express_system_user }}"
   tags:
-    - molecule-idempotence-notest
+    - molecule-idempotence-notest  # noqa 301
 
 # creates a sym-link express_codebase_path; that points to the express checkout path
 - name: Make the new codebase current
