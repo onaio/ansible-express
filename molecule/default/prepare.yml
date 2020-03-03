@@ -10,3 +10,4 @@
         state: present
       loop:
         - curl
+        - gpg-agent
