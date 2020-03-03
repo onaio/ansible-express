@@ -17,6 +17,7 @@ express_system_wide_dependencies:
   - git
   - nodejs
   - yarn
+  - nodejs-legacy
 express_node_version: 10.x
 
 # app
