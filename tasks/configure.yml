@@ -110,6 +110,8 @@
     - molecule-idempotence-notest  # noqa 301
 
 - name: Cleanup pm2 processes  # HACK: this should not be happening
-  shell: ps aux | grep PM2 | grep -v grep | awk '{print $2}' | xargs kill -9
+  shell: >
+    set -o pipefail &&
+    ps aux | grep PM2 | grep -v grep | awk '{print $2}' | xargs kill -9
   tags:
-    - molecule-idempotence-notest
+    - molecule-idempotence-notest  # noqa 301
