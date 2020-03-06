@@ -108,3 +108,10 @@
     - start_express_service
   tags:
     - molecule-idempotence-notest  # noqa 301
+  # HACK: this should not be happening
+
+- name: Cleanup pm2 processes
+  shell: ps aux | grep PM2 | grep -v grep | awk '{print $2}' | xargs kill -9
+  tags:
+    - molecule-idempotence-notest
+
