@@ -6,7 +6,6 @@ Installs and configures an express app built with typescript
 This role installs and configures:
 
 - node
-- typescript
 - yarn
 - pm2
 - and other node packages that the app is dependent on
@@ -40,9 +39,15 @@ express_app_settings:
 Testing
 ------------
 
-This project comes with a Vagrantfile, this is a fast and easy way to test changes to the role, fire it up with `vagrant up`.
+This project uses molecule for testing using a docker driver and testinfra as the verifier
 
-See [vagrant docs](https://docs.vagrantup.com/v2/) for getting setup with vagrant
+Start by creating a virtual environment and install the pypi packages in `requirements.txt`
+
+Then to run the full test sequence
+
+```sh
+molecule test
+```
 
 License
 -------

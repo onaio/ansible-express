@@ -1,0 +1,16 @@
+---
+- name: Get previous app deploy listing
+  command: ls -tr1 chdir={{ express_versioned_path }}
+  register: versioned_list
+  changed_when: false
+
+- name: Remove extra files from app directory
+  when: "versioned_list.stdout_lines|length > express_max_versioned_folders"
+  file:
+    path: "{{ express_versioned_path }}/{{ versioned_list.stdout_lines[item|int] }}"
+    state: absent
+  # end will be 0 if number of versioned folders is less than the max defined
+  with_sequence: >
+    start=0
+    end="{{ versioned_list.stdout_lines|length - express_max_versioned_folders - 1
+    if versioned_list.stdout_lines|length > express_max_versioned_folders else 0 }}"

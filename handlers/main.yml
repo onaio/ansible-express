@@ -1,0 +1,9 @@
+---
+- name: start_express_service
+  become: true
+  become_user: root
+  systemd:
+    name: "{{ express_service_name }}"
+    state: started
+    daemon_reload: true
+    enabled: true
