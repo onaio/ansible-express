@@ -11,6 +11,6 @@
         express_system_user_home: "/home/{{ express_system_user }}"
         express_node_version: 10.x
         express_git_url: "https://github.com/onaio/express-server"
-        express_git_version: "master"
+        express_git_version: "v1.0.1"
         express_app_settings:
           NODE_ENV: "production"
