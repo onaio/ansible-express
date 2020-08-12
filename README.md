@@ -1,4 +1,4 @@
-Role Name
+Ansible Express
 =========
 
 Installs and configures an express app built with typescript
