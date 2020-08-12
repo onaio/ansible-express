@@ -112,5 +112,6 @@
 - name: Cleanup pm2 processes  # HACK: this should not be happening
   shell:
     ps aux | grep PM2 | grep -v grep | awk '{print $2}' | xargs kill -9  # noqa 306
+  ignore_errors: true
   tags:
     - molecule-idempotence-notest  # noqa 301
