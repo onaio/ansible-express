@@ -8,7 +8,7 @@
     group: "{{ express_system_group }}"
   tags:
     - molecule-idempotence-notest
-  changed_when: false  # noqa 301
+  changed_when: false # noqa 301
 
 - name: Install Javascript requirements
   become: true
@@ -27,7 +27,7 @@
   become: true
   become_user: "{{ express_system_user }}"
   tags:
-    - molecule-idempotence-notest  # noqa 301
+    - molecule-idempotence-notest # noqa 301
 
 # creates a sym-link express_codebase_path; that points to the express checkout path
 - name: Make the new codebase current
@@ -41,77 +41,15 @@
   tags:
     - molecule-idempotence-notest
 
-- name: Restart express pm2 process
-  become: true
-  become_user: "{{ express_system_user }}"
-  command: "{{ express_pm2_path }} restart {{ express_service_name }}"
-  args:
-    chdir: "{{ express_app_path }}"
-  register: pm2_process
-  ignore_errors: true
-  changed_when: false
-
-- name: set express_service_exists fact
-  set_fact:
-    express_service_not_exists: "{{ pm2_process.rc != 0 }}"
-
-- name: set express_service_exists fact
-  set_fact:
-    express_service_exists: "{{ not express_service_not_exists }}"
-
-- name: creating pm2 process
-  block:
-    - name: Delete express pm2 process
-      become: true
-      become_user: "{{ express_system_user }}"
-      command: "{{ express_pm2_path }} delete all"
-      ignore_errors: true
-
-    - name: Start express pm2 app
-      become: true
-      become_user: "{{ express_system_user }}"
-      command: >
-        {{ express_pm2_path }} start dist/index.js
-        --name {{ express_service_name }}
-      args:
-        chdir: "{{ express_app_path }}"
-
-    - name: save the current PM2 running list
-      become: true
-      become_user: "{{ express_system_user }}"
-      command: "{{ express_pm2_path }} save"
-  when: express_service_not_exists
-
-- name: delete the old startup file
-  become: true
-  become_user: "root"
-  command: >
-    {{ express_pm2_path }} unstartup
-    -u {{ express_system_user }}
-    --service-name {{ express_service_name }}
-    --hp {{ express_system_user_home }}
-  ignore_errors: true
-  notify:
-    - start_express_service
-  tags:
-    - molecule-idempotence-notest  # noqa 301
-
-- name: Generate an express PM2 init service file
-  become: true
-  become_user: "root"
-  command: >
-    {{ express_pm2_path }} startup
-    -u {{ express_system_user }}
-    --hp {{ express_system_user_home }}
-    --service-name {{ express_service_name }}
-  notify:
-    - start_express_service
-  tags:
-    - molecule-idempotence-notest  # noqa 301
-
-- name: Cleanup pm2 processes  # HACK: this should not be happening
-  shell:
-    ps aux | grep PM2 | grep -v grep | awk '{print $2}' | xargs kill -9  # noqa 306
-  ignore_errors: true
-  tags:
-    - molecule-idempotence-notest  # noqa 301
+- name: pm2 configure
+  include_role:
+    name: weareinteractive.pm2
+  vars:
+    pm2_apps:
+      - run: dist/index.js
+        cmd: start
+        path: "{{ express_checkout_path }}"
+    pm2_user: root
+    pm2_service_name: "pm2-{{ pm2_user }}"
+    pm2_post_cmds:
+      - run: save
