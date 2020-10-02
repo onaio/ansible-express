@@ -30,6 +30,7 @@ jobs:
           sudo apt-get -y install podman
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          ansible-galaxy install -r requirements.yml
       - name: Test with molecule
         run: |
           molecule test --all
