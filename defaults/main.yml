@@ -15,9 +15,9 @@ express_remove_git_key: true
 # system-wide dependencies
 express_system_wide_dependencies:
   - git
-  # - nodejs
+  - nodejs
   - yarn
-express_node_version: 10.x
+express_node_version: 12.x
 
 # app
 express_env_name: "prod"
