@@ -64,7 +64,7 @@
     - name: Delete express pm2 process
       become: true
       become_user: "{{ express_system_user }}"
-      command: "{{ express_pm2_path }} delete all"
+      command: "{{ express_pm2_path }} delete {{ express_service_name }}"
       ignore_errors: true
 
     - name: Start express pm2 app
@@ -80,7 +80,6 @@
       become: true
       become_user: "{{ express_system_user }}"
       command: "{{ express_pm2_path }} save"
-  when: express_service_not_exists
 
 - name: delete the old startup file
   become: true
