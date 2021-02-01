@@ -50,7 +50,7 @@ def test_ensure_directories_are_present(host):
 
 
 def test_check_env_file(host):
-    express_env_path = host.file("/home/express/app/server/.env")
+    express_env_path = host.file("/home/express/app/.env")
     express_env_path.exists
     assert "NODE_ENV" in express_env_path.content_string
 

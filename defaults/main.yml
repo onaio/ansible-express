@@ -26,14 +26,13 @@ express_app_name: "{{ express_system_user }}"
 express_codebase_path: "{{ express_system_user_home }}/app"
 express_versioned_path: "{{ express_codebase_path }}-versioned"
 express_checkout_path: "{{ express_versioned_path }}/{{ ansible_date_time['epoch'] }}"
-express_app_path: "{{ express_checkout_path }}/server"
+express_app_path: "{{ express_checkout_path }}"
 express_log_path: "/var/log/{{ express_app_name }}"
 express_service_name: "{{ express_system_user }}"
 express_pm2_path: "/usr/bin/pm2"
 express_max_versioned_folders: 10
 express_package_json_paths:
   - "{{ express_app_path }}"
-  - "{{ express_checkout_path }}"
 
 # app settings
 express_app_settings:
