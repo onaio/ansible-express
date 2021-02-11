@@ -33,6 +33,7 @@ pm2_express_service_name: "{{ express_system_user }}"
 express_max_versioned_folders: 10
 express_package_json_paths:
   - "{{ express_app_path }}"
+express_init_system: "systemd"
 
 # app settings
 express_app_settings:

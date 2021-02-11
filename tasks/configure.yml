@@ -41,22 +41,84 @@
   tags:
     - molecule-idempotence-notest
 
-- name: pm2 configure
-  include_role:
-    name: weareinteractive.pm2
-  vars:
-    pm2_cmds:
-      - run: "delete {{ pm2_express_service_name }}"
-        ignore_errors: true
-    pm2_post_cmds:
-      - run: save
-      - run: kill
-    pm2_apps:
-      - run: dist/index.js
-        cmd: start
-        args: --name "{{ pm2_express_service_name }}"
-        path: "{{ express_checkout_path }}"
-    pm2_user: "{{ express_system_user }}"
-    pm2_service_name: "pm2-{{ pm2_user }}"
-    tags:
-    - molecule-idempotence-notest # noqa 301
+# - name: pm2 configure
+#   include_role:
+#     name: weareinteractive.pm2
+#   vars:
+#     pm2_upstart: no
+#     pm2_cmds:
+#       - run: "delete {{ pm2_express_service_name }}"
+#         ignore_errors: true
+#     pm2_post_cmds:
+#       - run: save
+#       - run: kill
+#     pm2_apps:
+#       - run: dist/index.js
+#         cmd: start
+#         args: --name "{{ pm2_express_service_name }}"
+#         path: "{{ express_checkout_path }}"
+#     pm2_user: "{{ express_system_user }}"
+#     pm2_service_name: "pm2-{{ pm2_user }}"
+#     tags:
+#     - molecule-idempotence-notest # noqa 301
+
+- name: delete specific express pm2 process
+  become: true
+  become_user: "{{ express_system_user }}"
+  command: "{{ express_pm2_path }} delete {{ pm2_express_service_name }}"
+  # this command fails if the process has not yet been started
+  ignore_errors: yes
+
+- name: start express pm2 app
+  become: true
+  become_user: "{{ express_system_user }}"
+  command: "{{ express_pm2_path }} start dist/index.js --name {{ pm2_express_service_name }}"
+  args:
+    chdir: "{{ express_app_path }}"
+
+- name: save the current PM2 running list
+  become: true
+  become_user: "{{ express_system_user }}"
+  command: "{{ express_pm2_path }} save"
+
+- name: delete the old startup file
+  become: true
+  become_user: "root"
+  command: "{{ express_pm2_path }} unstartup {{ express_init_system }} -u {{ express_system_user }}"
+  environment:
+
+- name: Cleanup pm2 processes
+  become: true
+  become_user: "root"
+  shell: "pkill -u {{ express_system_user }}"
+
+- name: generate an express PM2 init service file
+  become: true
+  become_user: "root"
+  command: "{{ express_pm2_path }} startup {{ express_init_system }} -u {{ express_system_user }} --hp {{ express_system_user_home }}"
+
+- name: Change pm2 service configs
+  block:
+    - name: Replace pm2 resurrect with pm2 start
+      lineinfile:
+        regexp: "^ExecStart"
+        line: "ExecStart=/usr/lib/node_modules/pm2/bin/pm2 start dist/index.js -n {{ pm2_express_service_name }}"
+        dest: "/etc/systemd/system/pm2-{{ express_system_user }}.service"
+
+    - name: Add WorkingDirectory in pm2-express.service file
+      lineinfile:
+        path: /etc/systemd/system/pm2-{{ express_system_user }}.service
+        insertbefore: "^ExecStart"
+        line: "WorkingDirectory={{ express_app_path }}"
+  when: express_init_system == "systemd"
+
+- name: reload systemd daemons
+  become: true
+  become_user: "root"
+  systemd:
+    daemon_reload: yes
+  when: express_init_system == "systemd"
+  tags:
+    - run-app
+  notify:
+    - "reload pm2-{{ pm2_express_service_name }}"

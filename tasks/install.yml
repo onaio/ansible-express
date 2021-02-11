@@ -58,6 +58,13 @@
     update_cache: true
     cache_valid_time: 600
 
+- name: Install PM2
+  npm:
+    name: pm2
+    global: true
+  become: true
+  become_user: root
+
 - name: Ensure required directories are present
   file:
     state: directory
