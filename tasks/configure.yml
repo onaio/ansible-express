@@ -41,27 +41,6 @@
   tags:
     - molecule-idempotence-notest
 
-# - name: pm2 configure
-#   include_role:
-#     name: weareinteractive.pm2
-#   vars:
-#     pm2_upstart: no
-#     pm2_cmds:
-#       - run: "delete {{ pm2_express_service_name }}"
-#         ignore_errors: true
-#     pm2_post_cmds:
-#       - run: save
-#       - run: kill
-#     pm2_apps:
-#       - run: dist/index.js
-#         cmd: start
-#         args: --name "{{ pm2_express_service_name }}"
-#         path: "{{ express_checkout_path }}"
-#     pm2_user: "{{ express_system_user }}"
-#     pm2_service_name: "pm2-{{ pm2_user }}"
-#     tags:
-#     - molecule-idempotence-notest # noqa 301
-
 - name: delete specific express pm2 process
   become: true
   become_user: "{{ express_system_user }}"
@@ -87,10 +66,12 @@
   command: "{{ express_pm2_path }} unstartup {{ express_init_system }} -u {{ express_system_user }}"
   environment:
 
-- name: Cleanup pm2 processes
-  become: true
-  become_user: "root"
-  shell: "pkill -u {{ express_system_user }}"
+- block:
+  - name: Cleanup pm2 processes
+    become: true
+    become_user: "root"
+    shell: "pkill -u {{ express_system_user }}"
+  when: express_init_system == "systemd"
 
 - name: generate an express PM2 init service file
   become: true
@@ -118,7 +99,8 @@
   systemd:
     daemon_reload: yes
   when: express_init_system == "systemd"
-  tags:
-    - run-app
-  notify:
-    - "reload pm2-{{ pm2_express_service_name }}"
+
+- name: Start pm2 express service, if not started
+  ansible.builtin.service:
+    name: pm2-{{ express_system_user }}
+    state: started
