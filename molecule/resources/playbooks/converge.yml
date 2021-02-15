@@ -10,7 +10,9 @@
         express_system_group: "www-data"
         express_system_user_home: "/home/{{ express_system_user }}"
         express_node_version: 10.x
-        express_git_url: "https://github.com/onaio/reveal-frontend"
-        express_git_version: "v0.4.0-rc11"
+        express_git_url: "https://github.com/onaio/reveal-express"
+        express_git_version: "v1.0.0"
+        pm2_express_service_name: "service-man"
         express_app_settings:
-          NODE_ENV: "production"
+          NODE_ENV: "production" 
+          SKIP_PREFLIGHT_CHECK: "true"

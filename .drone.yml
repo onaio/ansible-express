@@ -1,0 +1,26 @@
+---
+pipeline:
+  build:
+    image: ubuntu:xenial
+    commands:
+      - apt update
+      - apt install -y git sudo python-pip python-minimal software-properties-common curl apt-transport-https
+      - pip install ansible
+      - apt-get -y clean && apt-get -y autoclean
+      - . /etc/os-release
+      - echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+      - curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key | sudo apt-key add -
+      - sudo apt-get update
+      - sudo apt-get -y upgrade
+      - sudo apt-get -y install podman
+      - python -m pip install --upgrade pip
+      - pip install -r requirements.txt
+      - ansible-galaxy install -r requirements.yml
+      - molecule test --all
+    # secrets: [ git_key ]
+  # notify:
+    # image: plugins/slack
+    # secrets: [ slack_webhook ]
+    # when:
+    #   status: [success, failure]
+    #   event: [push, tag]

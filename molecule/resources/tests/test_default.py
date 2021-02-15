@@ -50,7 +50,7 @@ def test_ensure_directories_are_present(host):
 
 
 def test_check_env_file(host):
-    express_env_path = host.file("/home/express/app/server/.env")
+    express_env_path = host.file("/home/express/app/.env")
     express_env_path.exists
     assert "NODE_ENV" in express_env_path.content_string
 
@@ -71,6 +71,6 @@ def test_express_is_running(host):
 
 
 def test_express_service_is_up(host):
-    express_service = host.service("express.service")
+    express_service = host.service("pm2-express.service")
     assert express_service.is_running
     assert express_service.is_enabled

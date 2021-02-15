@@ -11,3 +11,5 @@
       loop:
         - curl
         - gpg-agent
+        - tmux
+        - vim
