@@ -20,6 +20,8 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install curl
+        run: sudo apt-get -y install curl
       - name: Install dependencies
         run: |
           . /etc/os-release
