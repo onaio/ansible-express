@@ -1,0 +1,42 @@
+---
+version: '{branch}.{build}'
+
+branches:
+  only:
+    - master
+
+image: 
+  - Ubuntu1804
+  - Ubuntu2004
+
+# cache env if requirements.pip file not changed
+-> next: lookinto caching
+
+# init:
+#   - sudo apt-get -yq install python-pip virtualbox
+#   # How did the VirtualBox installation go?
+#   - VBoxManage --version
+#   - sudo pip install ansible
+#   # Ansible correctly installed?
+#   - ansible --version
+
+install:
+  - sudo apt update
+  - sudo apt install -y git sudo python-pip python-minimal software-properties-common curl apt-transport-https
+  - sudo pip install ansible
+  - sudo apt-get -y clean && apt-get -y autoclean
+  - . /etc/os-release
+  - sudo echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/ /" | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+  - curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${VERSION_ID}/Release.key | sudo apt-key add -
+  - sudo apt-get update
+  - sudo apt-get -y upgrade
+  - sudo apt-get -y install podman
+
+build_script:
+  - python -m pip install --upgrade pip
+  - pip install -r requirements.txt
+  - ansible-galaxy install -r requirements.yml
+
+test: off
+test_script:
+  - molecule test --all

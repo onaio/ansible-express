@@ -9,5 +9,7 @@
         update_cache: true
         state: present
       loop:
+        # - gpg-agent
         - curl
-        - gpg-agent
+        # - tmux
+        # - vim

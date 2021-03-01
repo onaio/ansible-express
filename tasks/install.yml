@@ -14,16 +14,22 @@
   ignore_errors: true
 
 - name: Download node
-  shell: >
-    set -o pipefail &&
-    curl -sL https://deb.nodesource.com/setup_{{ express_node_version }}
-    | sudo -E bash -
+  block: 
+    - name: download installation setup script
+      shell: >
+        set -o pipefail &&
+        curl -sL https://deb.nodesource.com/setup_{{ express_node_version }} -o nodesource_setup.sh
+      args:
+        warn: false
+        executable: /bin/bash
+
+    - name: run script
+      shell: bash nodesource_setup.sh
+      args:
+        executable: /bin/bash
+  when: node_version.rc != 0
   become: true
   become_user: root
-  args:
-    warn: false
-    executable: /bin/bash
-  when: node_version.rc != 0
 
 - name: Add yarn apt key to keyring
   apt_key:
@@ -51,14 +57,6 @@
     state: present
     update_cache: true
     cache_valid_time: 600
-
-- name: Install PM2
-  npm:
-    name: pm2
-    global: true
-  become: true
-  become_user: root
-
 
 - name: Ensure required directories are present
   file:

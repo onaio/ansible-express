@@ -2,40 +2,32 @@
 # Based on ansible-lint config
 extends: default
 
-ignore: |
-  .github/
-
 rules:
   braces:
-    min-spaces-inside: 1
     max-spaces-inside: 1
     level: error
   brackets:
-    max-spaces-inside: 0
+    max-spaces-inside: 1
     level: error
   colons:
-    max-spaces-after: 1
+    max-spaces-after: -1
     level: error
   commas:
-    max-spaces-after: 1
+    max-spaces-after: -1
     level: error
-  comments:
-    require-starting-space: true
-  comments-indentation: enable
-  document-start:
-    present: true
-    level: error
+  comments: disable
+  comments-indentation: disable
+  document-start: disable
   empty-lines:
-    max: 2
+    max: 3
     level: error
   hyphens:
-    max-spaces-after: 1
     level: error
-  indentation:
-    spaces: 2
+  indentation: disable
   key-duplicates: enable
-  line-length:
-    max: 89
-  new-line-at-end-of-file: enable
-  trailing-spaces: enable
-  truthy: enable
+  line-length: disable
+  new-line-at-end-of-file: disable
+  new-lines:
+    type: unix
+  trailing-spaces: disable
+  truthy: disable

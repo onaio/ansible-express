@@ -10,3 +10,6 @@ galaxy_info:
     - name: ubuntu
       versions:
         - all
+
+# dependencies:
+#   - src: weareinteractive.pm2

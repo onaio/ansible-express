@@ -1,0 +1,43 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: podman
+platforms:
+  - name: instance
+    image: geerlingguy/docker-ubuntu1804-ansible
+    pre_build_image: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    command: "/lib/systemd/systemd"
+provisioner:
+  name: ansible
+  options:
+    vvv: True
+  log: True
+  playbooks:
+    prepare: ../resources/playbooks/prepare.yml
+    converge: ../resources/playbooks/converge.yml
+verifier:
+  name: testinfra
+  directory: ../resources/tests/
+scenario:
+  test_sequence:
+    - dependency
+    - lint
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - side_effect
+    - verify
+    - cleanup
+    - destroy
+# lint: |
+#   set -e
+#   yamllint .
+#   ansible-lint
+#   flake8
