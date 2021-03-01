@@ -17,7 +17,7 @@ provisioner:
     vvv: True
   log: True
   playbooks:
-    # prepare: ../resources/playbooks/prepare.yml
+    prepare: ../resources/playbooks/prepare.yml
     converge: ../resources/playbooks/converge.yml
 verifier:
   name: testinfra
