@@ -50,7 +50,6 @@
         ignore_errors: true
     pm2_post_cmds:
       - run: save
-      - run: kill
     pm2_apps:
       - run: dist/index.js
         cmd: start
