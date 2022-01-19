@@ -71,7 +71,7 @@
       become: true
       become_user: "{{ express_system_user }}"
       command: >
-        {{ express_pm2_path }} start dist/index.js
+        {{ express_pm2_path }} start {{ express_app_entry_point }}
         --name {{ express_service_name }}
       args:
         chdir: "{{ express_app_path }}"
