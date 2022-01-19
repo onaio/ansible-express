@@ -26,6 +26,9 @@
     chdir: "{{ express_app_path }}"
   become: true
   become_user: "{{ express_system_user }}"
+  when:
+    - express_compile_javascript is defined
+    - express_compile_javascript is not none
   tags:
     - molecule-idempotence-notest  # noqa 301
 
