@@ -8,7 +8,10 @@
     group: "{{ express_system_group }}"
   tags:
     - molecule-idempotence-notest
-  changed_when: false  # noqa 301
+  when:
+    - express_copy_env_vars is defined
+    - express_copy_env_vars is not none
+  changed_when: false # noqa 301
 
 - name: Install Javascript requirements
   become: true
@@ -26,6 +29,9 @@
     chdir: "{{ express_app_path }}"
   become: true
   become_user: "{{ express_system_user }}"
+  when:
+    - express_compile_javascript is defined
+    - express_compile_javascript is not none
   tags:
     - molecule-idempotence-notest  # noqa 301
 
@@ -71,7 +77,7 @@
       become: true
       become_user: "{{ express_system_user }}"
       command: >
-        {{ express_pm2_path }} start dist/index.js
+        {{ express_pm2_path }} start {{ express_app_entry_point }}
         --name {{ express_service_name }}
       args:
         chdir: "{{ express_app_path }}"
