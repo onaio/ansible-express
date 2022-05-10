@@ -1,4 +1,16 @@
 ---
+# creates a sym-link express_codebase_path; that points to the express checkout path
+- name: Make the new codebase current
+  file:
+    src: "{{ express_checkout_path }}"
+    dest: "{{ express_codebase_path }}"
+    state: link
+    force: true
+    owner: "{{ express_system_user }}"
+    group: "{{ express_system_group }}"
+  tags:
+    - molecule-idempotence-notest
+
 - name: Copy environment variables file
   template:
     src: env.j2
@@ -29,18 +41,6 @@
   tags:
     - molecule-idempotence-notest  # noqa 301
 
-# creates a sym-link express_codebase_path; that points to the express checkout path
-- name: Make the new codebase current
-  file:
-    src: "{{ express_checkout_path }}"
-    dest: "{{ express_codebase_path }}"
-    state: link
-    force: true
-    owner: "{{ express_system_user }}"
-    group: "{{ express_system_group }}"
-  tags:
-    - molecule-idempotence-notest
-
 - name: Restart express pm2 process
   become: true
   become_user: "{{ express_system_user }}"
@@ -51,7 +51,7 @@
   ignore_errors: true
   changed_when: false
 
-- name: set express_service_exists fact
+- name: set express_service_not_exists fact
   set_fact:
     express_service_not_exists: "{{ pm2_process.rc != 0 }}"
 
@@ -71,7 +71,7 @@
       become: true
       become_user: "{{ express_system_user }}"
       command: >
-        {{ express_pm2_path }} start dist/index.js
+        {{ express_pm2_path }} start {{ express_codebase_path }}/dist/index.js
         --name {{ express_service_name }}
       args:
         chdir: "{{ express_app_path }}"
