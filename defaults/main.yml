@@ -34,6 +34,7 @@ express_max_versioned_folders: 10
 express_package_json_paths:
   - "{{ express_app_path }}"
   - "{{ express_checkout_path }}"
+express_compile_javascript: true
 
 # app settings
 express_app_settings:
