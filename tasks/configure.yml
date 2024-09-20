@@ -28,6 +28,7 @@
   become_user: "{{ express_system_user }}"
   tags:
     - molecule-idempotence-notest  # noqa 301
+  when: express_compile_javascript|bool
 
 # creates a sym-link express_codebase_path; that points to the express checkout path
 - name: Make the new codebase current
